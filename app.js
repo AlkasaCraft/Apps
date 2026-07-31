@@ -3,7 +3,7 @@
 // ================================================================
 
 // Ganti URL ini dengan URL Deployment "Web App" dari Apps Script kamu
-const SCRIPT_URL = "https://alkasacraft.github.io/Apps/";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzR6XSp6RSuv0zImXJed0Sa447IUlb0Gleu42S4hkMN7_uc7PupY7iqg2caDklTwPBu/exec";
 
 // Variable global untuk menyimpan data sementara jika dibutuhkan
 let appData = {
