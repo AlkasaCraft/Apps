@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Keuangan Produksi & Stok</title>
+    <title>Sistem Keuangan Produksi & Stok - ALKASA CRAFT</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js untuk Grafik -->
@@ -39,8 +39,8 @@
                     </button>
                 </nav>
             </div>
-            <div class="text-xs text-slate-500 text-center py-2 border-t border-slate-800">
-                Connected to Google Sheets 🟢
+            <div class="text-xs text-slate-500 text-center py-2 border-t border-slate-800 flex items-center justify-center gap-2">
+                <span id="sync-status">Connected to Google Sheets 🟢</span>
             </div>
         </aside>
 
@@ -242,7 +242,11 @@
                     <h3 class="font-bold text-gray-700 mb-4 flex items-center gap-2">
                         <i data-lucide="plus-circle" class="text-emerald-600"></i> Tambah Transaksi Masuk
                     </h3>
-                    <form id="form-masuk" onsubmit="submitTransaksiMasuk(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <form id="form-masuk" onsubmit="submitTransaksiMasuk(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tanggal Transaksi</label>
+                            <input type="date" id="tm-tgl" required class="w-full border rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Detail Pesanan (Username)</label>
                             <input type="text" id="tm-detail" placeholder="Username Pembeli / ID Pesanan" required class="w-full border rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-emerald-500">
@@ -259,7 +263,7 @@
                             <input type="number" id="tm-shopeepay" placeholder="0 (Opsional)" class="w-full border rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-emerald-500">
                         </div>
 
-                        <div class="md:col-span-3 flex items-end mt-2">
+                        <div class="md:col-span-4 flex items-end mt-2">
                             <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl transition shadow-md">
                                 Simpan Transaksi Masuk
                             </button>
@@ -273,6 +277,7 @@
                         <table class="w-full text-left text-sm">
                             <thead>
                                 <tr class="bg-gray-50 text-gray-500 uppercase border-b text-xs">
+                                    <th class="p-3">Tanggal</th>
                                     <th class="p-3">Detail Pesanan (Username)</th>
                                     <th class="p-3 text-right">Shopee Pay (Rp)</th>
                                     <th class="p-3 text-right">Nominal Masuk</th>
@@ -397,7 +402,8 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "MASUKKAN_URL_WEB_APP_GOOGLE_SCRIPT_ANDA_DI_SINI";
+        // MASUKKAN URL GOOGLE APPS SCRIPT HASIL DEPLOY DI SINI:
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzeox3uRDzssEmboaq5cS7POoX7AWVfs-MFs2YU0AJsNZY14Q1DKx-klLdQ-XZvS9gS/exec";
 
         const varianMaster = {
             "TTM":              { omset: 48000, biayaJasa: 2000,  packingVar: "Packing Box",  biayaPacking: 1050, biayaPromosi: 2400,  kategori: "Buku Custom" },
@@ -419,6 +425,35 @@
         let selectedBiayaJasa = 0;
         let selectedBiayaPacking = 0;
         let selectedBiayaPromosi = 0;
+
+        let transaksiList = [];
+        let transaksiMasukList = [];
+        let produkList = [];
+        let bahanList = [];
+
+        let profitChart;
+        lucide.createIcons();
+
+        // Mengambil data awal dari Google Sheets
+        function fetchInitialData() {
+            document.getElementById('sync-status').innerText = 'Syncing... 🟡';
+            fetch(SCRIPT_URL)
+                .then(res => res.json())
+                .then(data => {
+                    transaksiList = data.transaksiKeluar || [];
+                    transaksiMasukList = data.transaksiMasuk || [];
+                    produkList = data.produk || [];
+                    bahanList = data.bahan || [];
+                    
+                    renderTables();
+                    updateDashboard();
+                    document.getElementById('sync-status').innerText = 'Connected to Google Sheets 🟢';
+                })
+                .catch(err => {
+                    console.error('Error fetching data:', err);
+                    document.getElementById('sync-status').innerText = 'Sync Error 🔴';
+                });
+        }
 
         function autoFillVarianData() {
             const selectedVar1 = document.getElementById('tr-var1').value;
@@ -446,26 +481,6 @@
                 document.getElementById('tr-biaya-promosi-disp').value = "Rp 0";
             }
         }
-
-        let transaksiList = [];
-        let transaksiMasukList = [];
-        
-        let produkList = [
-            { nama: 'Girl Edition', stok: 50, harga: 42000 },
-            { nama: 'Boy Edition', stok: 50, harga: 42000 }
-        ];
-
-        let bahanList = [
-            { nama: 'Spidol', stok: 100, satuan: 'Pcs' },
-            { nama: 'Krayon', stok: 100, satuan: 'Pcs' },
-            { nama: 'Keychain', stok: 100, satuan: 'Pcs' },
-            { nama: 'Frame', stok: 50, satuan: 'Pcs' },
-            { nama: 'Gelang', stok: 100, satuan: 'Pcs' }
-        ];
-
-        let profitChart;
-
-        lucide.createIcons();
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
@@ -540,7 +555,7 @@
         }
 
         function getNominalMasukForDetail(detailUsername) {
-            const found = transaksiMasukList.find(tm => tm.detail && tm.detail.trim().toLowerCase() === detailUsername.trim().toLowerCase());
+            const found = transaksiMasukList.find(tm => tm.detail && String(tm.detail).trim().toLowerCase() === String(detailUsername).trim().toLowerCase());
             return found ? Number(found.nominal || 0) : 0;
         }
 
@@ -555,11 +570,11 @@
 
                 return `
                     <tr>
-                        <td class="p-3 text-gray-500 font-medium">${t.tanggal}</td>
-                        <td class="p-3 font-semibold text-gray-700">${t.kategori}</td>
-                        <td class="p-3 font-medium text-indigo-700">${t.var1} <span class="text-gray-400">/</span> ${t.var2}</td>
-                        <td class="p-3"><span class="px-2 py-0.5 rounded text-xs font-bold ${t.marketplace === 'Shopee' ? 'bg-orange-50 text-orange-600' : 'bg-slate-100 text-slate-700'}">${t.marketplace}</span></td>
-                        <td class="p-3 font-mono text-gray-600">${t.detail}</td>
+                        <td class="p-3 text-gray-500 font-medium">${t.tanggal || ''}</td>
+                        <td class="p-3 font-semibold text-gray-700">${t.kategori || ''}</td>
+                        <td class="p-3 font-medium text-indigo-700">${t.var1 || ''} <span class="text-gray-400">/</span> ${t.var2 || ''}</td>
+                        <td class="p-3"><span class="px-2 py-0.5 rounded text-xs font-bold ${t.marketplace === 'Shopee' ? 'bg-orange-50 text-orange-600' : 'bg-slate-100 text-slate-700'}">${t.marketplace || ''}</span></td>
+                        <td class="p-3 font-mono text-gray-600">${t.detail || ''}</td>
                         <td class="p-3 font-medium text-gray-600">${formatRupiah(t.biayaCetak)}</td>
                         <td class="p-3 font-medium text-gray-600">${formatRupiah(t.biayaJasa)}</td>
                         <td class="p-3 font-medium text-gray-600">${formatRupiah(t.biayaPacking)}</td>
@@ -573,7 +588,8 @@
             const tmBody = document.getElementById('table-masuk-body');
             tmBody.innerHTML = transaksiMasukList.map(item => `
                 <tr>
-                    <td class="p-3 font-mono text-gray-700 font-semibold">${item.detail}</td>
+                    <td class="p-3 text-gray-500 font-medium">${item.tanggal || ''}</td>
+                    <td class="p-3 font-mono text-gray-700 font-semibold">${item.detail || ''}</td>
                     <td class="p-3 text-right text-gray-500">${formatRupiah(item.shopeePay)}</td>
                     <td class="p-3 text-right font-bold text-emerald-600">${formatRupiah(item.nominal)}</td>
                 </tr>
@@ -583,8 +599,8 @@
             const prodBody = document.getElementById('table-produk-body');
             prodBody.innerHTML = produkList.map(item => `
                 <tr>
-                    <td class="py-3 font-semibold text-gray-700">${item.nama}</td>
-                    <td class="py-3 font-bold">${item.stok}</td>
+                    <td class="py-3 font-semibold text-gray-700">${item.nama || ''}</td>
+                    <td class="py-3 font-bold">${item.stok || 0}</td>
                     <td class="py-3 text-gray-500">Pcs</td>
                     <td class="py-3 text-right">
                         <span class="px-2 py-1 rounded-md text-xs font-bold ${item.stok < 10 ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-600'}">
@@ -598,9 +614,9 @@
             const bahanBody = document.getElementById('table-bahan-body');
             bahanBody.innerHTML = bahanList.map(item => `
                 <tr>
-                    <td class="py-3 font-semibold text-gray-700">${item.nama}</td>
-                    <td class="py-3 font-bold">${item.stok}</td>
-                    <td class="py-3 text-gray-500">${item.satuan}</td>
+                    <td class="py-3 font-semibold text-gray-700">${item.nama || ''}</td>
+                    <td class="py-3 font-bold">${item.stok || 0}</td>
+                    <td class="py-3 text-gray-500">${item.satuan || ''}</td>
                     <td class="py-3 text-right">
                         <span class="px-2 py-1 rounded-md text-xs font-bold ${item.stok < 10 ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-600'}">
                             ${item.stok < 10 ? 'Hampir Habis' : 'Aman'}
@@ -633,35 +649,6 @@
                 biayaPromosi: selectedBiayaPromosi
             };
 
-            // Potong stok bahan mentah berdasarkan Varian (1)
-            if (var1 === 'Keychain') {
-                potongStokLokal(bahanList, 'Keychain', 2); // Berkurang 2 Pcs per transaksi
-            } else if (var1 === 'Frame') {
-                potongStokLokal(bahanList, 'Frame', 1);
-            } else if (var1 === 'Gelang') {
-                potongStokLokal(bahanList, 'Gelang', 1);
-            }
-
-            // Potong stok produk & bahan untuk kategori Couple Book
-            if (kategori === 'Couple Book') {
-                if (var1 === 'Couple Edition') {
-                    potongStokLokal(produkList, 'Girl Edition', 1);
-                    potongStokLokal(produkList, 'Boy Edition', 1);
-                } else if (var1 === 'Girl Edition') {
-                    potongStokLokal(produkList, 'Girl Edition', 1);
-                } else if (var1 === 'Boy Edition') {
-                    potongStokLokal(produkList, 'Boy Edition', 1);
-                }
-
-                if (var2 === 'Spidol') {
-                    const qty = (var1 === 'Couple Edition') ? 2 : 1;
-                    potongStokLokal(bahanList, 'Spidol', qty);
-                } else if (var2 === 'Krayon') {
-                    const qty = (var1 === 'Couple Edition') ? 2 : 1;
-                    potongStokLokal(bahanList, 'Krayon', qty);
-                }
-            }
-
             transaksiList.unshift(data);
             renderTables();
             updateDashboard();
@@ -671,17 +658,11 @@
             autoFillVarianData();
         }
 
-        function potongStokLokal(listArray, namaItem, qty) {
-            const item = listArray.find(i => i.nama.toLowerCase().trim() === namaItem.toLowerCase().trim());
-            if (item) {
-                item.stok = Math.max(0, Number(item.stok) - qty);
-            }
-        }
-
         function submitTransaksiMasuk(e) {
             e.preventDefault();
             const data = {
                 action: 'addTransaksiMasuk',
+                tanggal: document.getElementById('tm-tgl').value,
                 detail: document.getElementById('tm-detail').value,
                 nominal: Number(document.getElementById('tm-nominal').value),
                 shopeePay: Number(document.getElementById('tm-shopeepay').value || 0)
@@ -700,7 +681,7 @@
             const stokInput = Number(document.getElementById('prod-stok').value);
             const hargaInput = Number(document.getElementById('prod-harga').value);
 
-            const existing = produkList.find(p => p.nama.toLowerCase() === namaInput.toLowerCase());
+            const existing = produkList.find(p => String(p.nama).toLowerCase() === namaInput.toLowerCase());
             if (existing) {
                 existing.stok = stokInput;
                 existing.harga = hargaInput;
@@ -720,7 +701,7 @@
             const stokInput = Number(document.getElementById('bahan-stok').value);
             const satuanInput = document.getElementById('bahan-satuan').value;
 
-            const existing = bahanList.find(b => b.nama.toLowerCase() === namaInput.toLowerCase());
+            const existing = bahanList.find(b => String(b.nama).toLowerCase() === namaInput.toLowerCase());
             if (existing) {
                 existing.stok = stokInput;
                 existing.satuan = satuanInput;
@@ -735,21 +716,22 @@
         }
 
         function sendToSpreadsheet(payload) {
-            if (SCRIPT_URL.includes("MASUKKAN_URL")) {
-                console.warn("URL Apps Script belum dipasang!");
-                return;
-            }
+            document.getElementById('sync-status').innerText = 'Syncing... 🟡';
             fetch(SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
-            }).then(() => console.log('Data synced to Sheets'))
-              .catch(err => console.error('Sync Error:', err));
+            }).then(() => {
+                document.getElementById('sync-status').innerText = 'Connected to Google Sheets 🟢';
+            }).catch(err => {
+                console.error('Sync Error:', err);
+                document.getElementById('sync-status').innerText = 'Sync Error 🔴';
+            });
         }
 
-        renderTables();
-        updateDashboard();
+        // Ambil data dari Google Sheets saat pertama kali halaman dimuat
+        fetchInitialData();
     </script>
 </body>
 </html>
