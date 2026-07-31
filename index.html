@@ -37,6 +37,10 @@
                     <button onclick="switchTab('bahan')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 transition text-left" id="btn-bahan">
                         <i data-lucide="boxes"></i> Stok Bahan Mentah
                     </button>
+                    <!-- BUTTON BARU DI BAWAH STOK BAHAN MENTAH -->
+                    <button onclick="switchTab('notebook')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 transition text-left" id="btn-notebook">
+                        <i data-lucide="notebook-pen"></i> Catatan (Notebook)
+                    </button>
                 </nav>
             </div>
             <div class="text-xs text-slate-500 text-center py-2 border-t border-slate-800 flex items-center justify-center gap-2">
@@ -426,6 +430,26 @@
                 </div>
             </section>
 
+            <!-- TAB 5: CATATAN (NOTEBOOK / NOTEPAD) -->
+            <section id="tab-notebook" class="tab-content hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                        <i data-lucide="notebook-pen" class="text-indigo-600"></i> Catatan Operasional (Notebook)
+                    </h2>
+                    <button onclick="saveNote()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 shadow transition">
+                        <i data-lucide="save" class="w-4 h-4"></i> Simpan Catatan
+                    </button>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+                    <p class="text-xs text-gray-500">Gunakan area ini untuk mencatat instruksi khusus, daftar belanja dadakan, pengingat, atau catatan internal produksi.</p>
+                    <textarea id="notebook-area" rows="18" placeholder="Tulis catatan Anda di sini..." class="w-full border rounded-xl p-4 text-sm outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50 leading-relaxed font-mono resize-y text-gray-800"></textarea>
+                    <div id="note-saved-status" class="text-xs text-emerald-600 font-bold hidden flex items-center gap-1">
+                        <i data-lucide="check-circle" class="w-4 h-4"></i> Catatan berhasil tersimpan!
+                    </div>
+                </div>
+            </section>
+
         </main>
     </div>
 
@@ -462,9 +486,16 @@
         let profitChart;
         lucide.createIcons();
 
-        // Mengambil data awal dari Google Sheets
+        // Mengambil data awal dari Google Sheets & LocalStorage
         function fetchInitialData() {
             document.getElementById('sync-status').innerText = 'Syncing... 🟡';
+            
+            // Load catatan dari localStorage
+            const savedNote = localStorage.getItem('alkasa_notebook_data');
+            if (savedNote) {
+                document.getElementById('notebook-area').value = savedNote;
+            }
+
             fetch(SCRIPT_URL)
                 .then(res => res.json())
                 .then(data => {
@@ -481,6 +512,17 @@
                     console.error('Error fetching data:', err);
                     document.getElementById('sync-status').innerText = 'Sync Error 🔴';
                 });
+        }
+
+        function saveNote() {
+            const noteText = document.getElementById('notebook-area').value;
+            localStorage.setItem('alkasa_notebook_data', noteText);
+            
+            const statusEl = document.getElementById('note-saved-status');
+            statusEl.classList.remove('hidden');
+            setTimeout(() => {
+                statusEl.classList.add('hidden');
+            }, 3000);
         }
 
         function autoFillVarianData() {
