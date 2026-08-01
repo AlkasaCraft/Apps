@@ -31,6 +31,10 @@
                     <button onclick="switchTab('masuk')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 transition text-left" id="btn-masuk">
                         <i data-lucide="arrow-down-left"></i> Transaksi Masuk
                     </button>
+                    <!-- Menu Baru: Database Transaksi -->
+                    <button onclick="switchTab('db-transaksi')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 transition text-left" id="btn-db-transaksi">
+                        <i data-lucide="database"></i> Database Transaksi
+                    </button>
                     <button onclick="switchTab('produk')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 transition text-left" id="btn-produk">
                         <i data-lucide="package"></i> Stok Produk Jadi
                     </button>
@@ -243,7 +247,7 @@
                 </div>
             </section>
 
-            <!-- TAB TRANSAKSI MASUK -->
+            <!-- TAB 3: TRANSAKSI MASUK -->
             <section id="tab-masuk" class="tab-content hidden space-y-6">
                 <h2 class="text-2xl font-bold text-gray-800">Pencatatan Transaksi Masuk</h2>
                 
@@ -306,7 +310,50 @@
                 </div>
             </section>
 
-            <!-- TAB 3: STOK PRODUK JADI -->
+            <!-- TAB 4: DATABASE TRANSAKSI (GABUNGAN MASUK & KELUAR) -->
+            <section id="tab-db-transaksi" class="tab-content hidden space-y-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                            <i data-lucide="database" class="text-indigo-600"></i> Database Transaksi Lengkap
+                        </h2>
+                        <p class="text-xs text-gray-500 mt-1">Menampilkan rekapitulasi lengkap seluruh transaksi masuk, keluar, biaya operasional, netto, dan piutang.</p>
+                    </div>
+                    <div class="relative w-full md:w-72">
+                        <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
+                        <input type="text" id="search-db" onkeyup="filterTables()" placeholder="Cari No Pesanan, Produk, Varian..." class="w-full pl-9 pr-4 py-2 border rounded-xl text-xs outline-none focus:ring-2 focus:ring-indigo-500 bg-white shadow-sm">
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs whitespace-nowrap">
+                            <thead>
+                                <tr class="bg-slate-100 text-slate-700 uppercase border-b font-bold">
+                                    <th class="p-3 border-r border-slate-200">No Pesanan</th>
+                                    <th class="p-3 border-r border-slate-200">Produk</th>
+                                    <th class="p-3 border-r border-slate-200">Varian 1</th>
+                                    <th class="p-3 border-r border-slate-200">Varian 2</th>
+                                    <th class="p-3 border-r border-slate-200">Marketplace</th>
+                                    <th class="p-3 text-right bg-rose-50 text-rose-700 border-r border-slate-200">Keluar</th>
+                                    <th class="p-3 text-right bg-emerald-50 text-emerald-700 border-r border-slate-200">Masuk</th>
+                                    <th class="p-3 text-right bg-emerald-100 text-emerald-800 border-r border-slate-200">Nominal</th>
+                                    <th class="p-3 text-right border-r border-slate-200">Biaya Jasa</th>
+                                    <th class="p-3 text-right border-r border-slate-200">Biaya Packing</th>
+                                    <th class="p-3 text-right border-r border-slate-200">Biaya Promosi</th>
+                                    <th class="p-3 text-right bg-emerald-50 text-emerald-700 font-extrabold border-r border-slate-200">Netto</th>
+                                    <th class="p-3 text-right bg-rose-50 text-rose-700 font-extrabold">Piutang</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-db-body" class="divide-y divide-gray-100 font-medium">
+                                <!-- Dynamic Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: STOK PRODUK JADI -->
             <section id="tab-produk" class="tab-content hidden space-y-6">
                 <h2 class="text-2xl font-bold text-gray-800">Stok Produk Jadi</h2>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -362,7 +409,7 @@
                 </div>
             </section>
 
-            <!-- TAB 4: STOK BAHAN MENTAH -->
+            <!-- TAB 6: STOK BAHAN MENTAH -->
             <section id="tab-bahan" class="tab-content hidden space-y-6">
                 <h2 class="text-2xl font-bold text-gray-800">Stok Bahan Mentah / Craft Supplies</h2>
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -425,7 +472,7 @@
                 </div>
             </section>
 
-            <!-- TAB 5: CATATAN (NOTEBOOK / NOTEPAD) TERKONEKSI SPREADSHEET -->
+            <!-- TAB 7: CATATAN (NOTEBOOK / NOTEPAD) TERKONEKSI SPREADSHEET -->
             <section id="tab-notebook" class="tab-content hidden space-y-6">
                 <div class="flex justify-between items-center">
                     <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
@@ -481,7 +528,7 @@
         let profitChart;
         lucide.createIcons();
 
-        // Ambil Data dari Spreadsheet (Termasuk Catatan Notebook)
+        // Ambil Data dari Spreadsheet
         function fetchInitialData() {
             document.getElementById('sync-status').innerText = 'Syncing... 🟡';
 
@@ -493,7 +540,6 @@
                     produkList = data.produk || [];
                     bahanList = data.bahan || [];
                     
-                    // Ambil isi Catatan dari Spreadsheet jika ada
                     if (data.catatan !== undefined) {
                         document.getElementById('notebook-area').value = data.catatan;
                     }
@@ -508,7 +554,6 @@
                 });
         }
 
-        // Simpan Catatan Langsung ke Google Sheets
         function saveNote() {
             const noteText = document.getElementById('notebook-area').value;
             
@@ -562,7 +607,8 @@
         }
 
         function formatRupiah(number) {
-            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(number || 0);
+            if (number === 0 || number === "0" || !number) return "Rp -";
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(number);
         }
 
         function updateDashboard() {
@@ -666,6 +712,62 @@
                 </tr>
             `).join('');
 
+            // Render Database Transaksi (DIPERBARUI SESUAI INSTRUKSI)
+            const dbBody = document.getElementById('table-db-body');
+            dbBody.innerHTML = transaksiList.map(t => {
+                let noPesanan = t.detail || '-';
+                let produk = t.kategori || '-';
+                let var1 = t.var1 || '-';
+                let var2 = t.var2 || '-';
+                let mp = t.marketplace || '-';
+                let keluar = Number(t.biayaCetak || 0);
+                
+                // Cari transaksi masuk berdasarkan No Pesanan / Detail
+                let matchingMasuk = transaksiMasukList.find(tm => tm.detail && String(tm.detail).trim().toLowerCase() === String(noPesanan).trim().toLowerCase());
+                
+                let masukTampil = "";
+                let nominalTampil = "";
+
+                if (matchingMasuk && matchingMasuk.nominal !== undefined && matchingMasuk.nominal !== null) {
+                    let nominalMasukVal = Number(matchingMasuk.nominal);
+                    masukTampil = formatRupiah(nominalMasukVal);
+                    
+                    // Rumus: Nominal = Transaksi Masuk - Transaksi Keluar
+                    let nominalSelisihVal = nominalMasukVal - keluar;
+                    nominalTampil = formatRupiah(nominalSelisihVal);
+                }
+
+                let bJasa = Number(t.biayaJasa || 0);
+                let bPacking = Number(t.biayaPacking || 0);
+                let bPromosi = Number(t.biayaPromosi || 0);
+
+                let nominalMasukVal = matchingMasuk ? Number(matchingMasuk.nominal) : 0;
+                let netto = nominalMasukVal - (keluar + bJasa + bPacking + bPromosi);
+                let piutang = netto * 0.3; // Perhitungan estimasi piutang/margin potongan
+
+                return `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="p-3 font-mono text-gray-800 font-semibold border-r border-gray-100">${noPesanan}</td>
+                        <td class="p-3 text-gray-700 border-r border-gray-100">${produk}</td>
+                        <td class="p-3 text-indigo-700 font-medium border-r border-gray-100">${var1}</td>
+                        <td class="p-3 text-gray-600 border-r border-gray-100">${var2}</td>
+                        <td class="p-3 border-r border-gray-100">
+                            <span class="px-2 py-0.5 rounded text-[11px] font-bold ${mp === 'Shopee' ? 'bg-orange-100 text-orange-700' : 'bg-slate-100 text-slate-700'}">
+                                ${mp}
+                            </span>
+                        </td>
+                        <td class="p-3 text-right text-rose-600 border-r border-gray-100">${formatRupiah(keluar)}</td>
+                        <td class="p-3 text-right text-emerald-600 border-r border-gray-100">${masukTampil}</td>
+                        <td class="p-3 text-right text-emerald-700 font-bold border-r border-gray-100">${nominalTampil}</td>
+                        <td class="p-3 text-right text-gray-600 border-r border-gray-100">${formatRupiah(bJasa)}</td>
+                        <td class="p-3 text-right text-gray-600 border-r border-gray-100">${formatRupiah(bPacking)}</td>
+                        <td class="p-3 text-right text-gray-600 border-r border-gray-100">${formatRupiah(bPromosi)}</td>
+                        <td class="p-3 text-right text-emerald-700 font-extrabold bg-emerald-50/50 border-r border-gray-100">${formatRupiah(netto)}</td>
+                        <td class="p-3 text-right text-rose-600 font-bold bg-rose-50/30">${formatRupiah(piutang)}</td>
+                    </tr>
+                `;
+            }).join('');
+
             // Render Produk
             const prodBody = document.getElementById('table-produk-body');
             prodBody.innerHTML = produkList.map(item => `
@@ -703,6 +805,7 @@
             const configs = [
                 { inputId: 'search-keluar', tbodyId: 'table-transaksi-body' },
                 { inputId: 'search-masuk', tbodyId: 'table-masuk-body' },
+                { inputId: 'search-db', tbodyId: 'table-db-body' },
                 { inputId: 'search-produk', tbodyId: 'table-produk-body' },
                 { inputId: 'search-bahan', tbodyId: 'table-bahan-body' }
             ];
