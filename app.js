@@ -3,7 +3,7 @@
 // ================================================================
 
 // ⚠️ PENTING: Ganti URL ini dengan URL Web App Apps Script kamu (berakhiran /exec)
-// JANGANKAN gunakan URL GitHub Pages di sini!
+// JANGAN gunakan URL GitHub Pages di sini!
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzR6XSp6RSuv0zImXJed0Sa447IUlb0Gleu42S4hkMN7_uc7PupY7iqg2caDklTwPBu/exec"; 
 
 // Variable global untuk menyimpan data sementara dari server
@@ -11,12 +11,11 @@ let appData = {
   transaksiKeluar: [],
   transaksiMasuk: [],
   produk: [],
-  bahan: [],
-  catatan: ""
+  bahan: []
 };
 
 /**
- * 1. MENGAMBIL DATA DARI SPREADSHEET & DOCS
+ * 1. MENGAMBIL DATA DARI SPREADSHEET
  * (Otomatis dipanggil saat web dibuka/di-refresh)
  */
 async function loadDataFromSpreadsheet() {
@@ -33,7 +32,6 @@ async function loadDataFromSpreadsheet() {
     appData.transaksiMasuk = data.transaksiMasuk || [];
     appData.produk = data.produk || [];
     appData.bahan = data.bahan || [];
-    appData.catatan = data.catatan || "";
 
     console.log("Data berhasil diambil:", appData);
 
@@ -49,16 +47,7 @@ async function loadDataFromSpreadsheet() {
  * 2. MENAMPILKAN DATA KE TAMPILAN WEB (RENDER UI)
  */
 function renderAllDataUI() {
-  // A. Render Catatan Operasional (Notebook)
-  const notebookArea = document.getElementById("notebook-area");
-  if (notebookArea) {
-    // Hanya perbarui isi textarea jika pengguna sedang TIDAK mengetik di dalamnya
-    if (document.activeElement !== notebookArea) {
-      notebookArea.value = appData.catatan;
-    }
-  }
-
-  // B. Render Tabel Produk Jadi
+  // A. Render Tabel Produk Jadi
   const tabelProduk = document.getElementById("tabel-produk-body");
   if (tabelProduk) {
     tabelProduk.innerHTML = "";
@@ -73,7 +62,7 @@ function renderAllDataUI() {
     });
   }
 
-  // C. Render Tabel Bahan Mentah
+  // B. Render Tabel Bahan Mentah
   const tabelBahan = document.getElementById("tabel-bahan-body");
   if (tabelBahan) {
     tabelBahan.innerHTML = "";
@@ -110,48 +99,6 @@ async function sendToSpreadsheet(payload) {
   } catch (error) {
     console.error("Gagal mengirim data:", error);
     return false;
-  }
-}
-
-// ----------------------------------------------------------------
-// FUNGSI OPERASIONAL CATATAN (NOTEBOOK)
-// ----------------------------------------------------------------
-
-/**
- * Fungsi untuk menyimpan Catatan ke Google Docs/Properties
- */
-async function saveCatatan() {
-  const notebookArea = document.getElementById("notebook-area");
-  const btnSimpan = document.getElementById("btn-simpan-catatan");
-
-  if (!notebookArea) {
-    console.error("Elemen textarea catatan (id: notebook-area) tidak ditemukan!");
-    return;
-  }
-
-  const isiCatatan = notebookArea.value;
-
-  // Ubah status tombol jadi loading
-  if (btnSimpan) {
-    btnSimpan.disabled = true;
-    btnSimpan.innerText = "Menyimpan...";
-  }
-
-  const success = await sendToSpreadsheet({
-    action: "saveCatatan",
-    catatan: isiCatatan
-  });
-
-  // Kembalikan status tombol
-  if (btnSimpan) {
-    btnSimpan.disabled = false;
-    btnSimpan.innerText = "Simpan Ke Spreadsheet";
-  }
-
-  if (success) {
-    alert("Catatan berhasil tersimpan dan tersinkronisasi!");
-  } else {
-    alert("Gagal menyimpan catatan. Periksa koneksi internet.");
   }
 }
 
