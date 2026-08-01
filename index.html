@@ -37,7 +37,6 @@
                     <button onclick="switchTab('bahan')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 transition text-left" id="btn-bahan">
                         <i data-lucide="boxes"></i> Stok Bahan Mentah
                     </button>
-                    <!-- BUTTON BARU DI BAWAH STOK BAHAN MENTAH -->
                     <button onclick="switchTab('notebook')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 transition text-left" id="btn-notebook">
                         <i data-lucide="notebook-pen"></i> Catatan (Notebook)
                     </button>
@@ -215,7 +214,6 @@
                 <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
                         <h3 class="font-bold text-gray-700">Riwayat Data Transaksi Keluar</h3>
-                        <!-- KOLOM PENCARIAN TRANSAKSI KELUAR -->
                         <div class="relative w-full md:w-64">
                             <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
                             <input type="text" id="search-keluar" onkeyup="filterTables()" placeholder="Cari pesanan, varian..." class="w-full pl-9 pr-4 py-2 border rounded-xl text-xs outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50">
@@ -285,7 +283,6 @@
                 <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
                         <h3 class="font-bold text-gray-700">Riwayat Data Transaksi Masuk</h3>
-                        <!-- KOLOM PENCARIAN TRANSAKSI MASUK -->
                         <div class="relative w-full md:w-64">
                             <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
                             <input type="text" id="search-masuk" onkeyup="filterTables()" placeholder="Cari username pesanan..." class="w-full pl-9 pr-4 py-2 border rounded-xl text-xs outline-none focus:ring-2 focus:ring-emerald-500 bg-gray-50">
@@ -341,7 +338,6 @@
                     <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
                             <h3 class="font-bold text-gray-700">Daftar Produk Jadi</h3>
-                            <!-- KOLOM PENCARIAN PRODUK -->
                             <div class="relative w-full md:w-64">
                                 <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
                                 <input type="text" id="search-produk" onkeyup="filterTables()" placeholder="Cari nama produk..." class="w-full pl-9 pr-4 py-2 border rounded-xl text-xs outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50">
@@ -405,7 +401,6 @@
                     <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
                             <h3 class="font-bold text-gray-700">Daftar Bahan Mentah</h3>
-                            <!-- KOLOM PENCARIAN BAHAN -->
                             <div class="relative w-full md:w-64">
                                 <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
                                 <input type="text" id="search-bahan" onkeyup="filterTables()" placeholder="Cari nama bahan..." class="w-full pl-9 pr-4 py-2 border rounded-xl text-xs outline-none focus:ring-2 focus:ring-indigo-500 bg-gray-50">
@@ -430,22 +425,22 @@
                 </div>
             </section>
 
-            <!-- TAB 5: CATATAN (NOTEBOOK / NOTEPAD) -->
+            <!-- TAB 5: CATATAN (NOTEBOOK / NOTEPAD) TERKONEKSI SPREADSHEET -->
             <section id="tab-notebook" class="tab-content hidden space-y-6">
                 <div class="flex justify-between items-center">
                     <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                        <i data-lucide="notebook-pen" class="text-indigo-600"></i> Catatan Operasional (Notebook)
+                        <i data-lucide="notebook-pen" class="text-indigo-600"></i> Catatan Operasional (Synced Across Devices)
                     </h2>
                     <button onclick="saveNote()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 shadow transition">
-                        <i data-lucide="save" class="w-4 h-4"></i> Simpan Catatan
+                        <i data-lucide="save" class="w-4 h-4"></i> Simpan Ke Spreadsheet
                     </button>
                 </div>
 
                 <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
-                    <p class="text-xs text-gray-500">Gunakan area ini untuk mencatat instruksi khusus, daftar belanja dadakan, pengingat, atau catatan internal produksi.</p>
+                    <p class="text-xs text-gray-500">Catatan di sini otomatis tersimpan ke Google Sheets sehingga akan selalu sama jika dibuka dari HP, laptop, atau perangkat lainnya.</p>
                     <textarea id="notebook-area" rows="18" placeholder="Tulis catatan Anda di sini..." class="w-full border rounded-xl p-4 text-sm outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50 leading-relaxed font-mono resize-y text-gray-800"></textarea>
                     <div id="note-saved-status" class="text-xs text-emerald-600 font-bold hidden flex items-center gap-1">
-                        <i data-lucide="check-circle" class="w-4 h-4"></i> Catatan berhasil tersimpan!
+                        <i data-lucide="check-circle" class="w-4 h-4"></i> Catatan berhasil tersimpan & tersinkronisasi ke Google Sheets!
                     </div>
                 </div>
             </section>
@@ -454,7 +449,7 @@
     </div>
 
     <script>
-        // MASUKKAN URL GOOGLE APPS SCRIPT HASIL DEPLOY DI SINI:
+        // URL GOOGLE APPS SCRIPT ALKASA CRAFT
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzR6XSp6RSuv0zImXJed0Sa447IUlb0Gleu42S4hkMN7_uc7PupY7iqg2caDklTwPBu/exec";
 
         const varianMaster = {
@@ -486,15 +481,9 @@
         let profitChart;
         lucide.createIcons();
 
-        // Mengambil data awal dari Google Sheets & LocalStorage
+        // Ambil Data dari Spreadsheet (Termasuk Catatan Notebook)
         function fetchInitialData() {
             document.getElementById('sync-status').innerText = 'Syncing... 🟡';
-            
-            // Load catatan dari localStorage
-            const savedNote = localStorage.getItem('alkasa_notebook_data');
-            if (savedNote) {
-                document.getElementById('notebook-area').value = savedNote;
-            }
 
             fetch(SCRIPT_URL)
                 .then(res => res.json())
@@ -503,6 +492,11 @@
                     transaksiMasukList = data.transaksiMasuk || [];
                     produkList = data.produk || [];
                     bahanList = data.bahan || [];
+                    
+                    // Ambil isi Catatan dari Spreadsheet jika ada
+                    if (data.catatan !== undefined) {
+                        document.getElementById('notebook-area').value = data.catatan;
+                    }
                     
                     renderTables();
                     updateDashboard();
@@ -514,10 +508,17 @@
                 });
         }
 
+        // Simpan Catatan Langsung ke Google Sheets
         function saveNote() {
             const noteText = document.getElementById('notebook-area').value;
-            localStorage.setItem('alkasa_notebook_data', noteText);
             
+            const payload = {
+                action: 'saveCatatan',
+                catatan: noteText
+            };
+
+            sendToSpreadsheet(payload);
+
             const statusEl = document.getElementById('note-saved-status');
             statusEl.classList.remove('hidden');
             setTimeout(() => {
@@ -695,11 +696,9 @@
                 </tr>
             `).join('');
 
-            // Terapkan filter pencarian jika ada kata kunci
             filterTables();
         }
 
-        // FUNGSI LOGIKA PENCARIAN
         function filterTables() {
             const configs = [
                 { inputId: 'search-keluar', tbodyId: 'table-transaksi-body' },
@@ -833,7 +832,7 @@
             });
         }
 
-        // Ambil data dari Google Sheets saat pertama kali halaman dimuat
+        // Jalankan sinkronisasi awal saat web dibuka
         fetchInitialData();
     </script>
 </body>
