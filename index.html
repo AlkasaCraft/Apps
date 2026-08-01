@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALKASA CRAFT</title>
+    <title>Sistem Keuangan Produksi & Stok - ALKASA CRAFT</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js untuk Grafik -->
@@ -42,7 +42,7 @@
                         <i data-lucide="boxes"></i> Stok Bahan Mentah
                     </button>
                     <button onclick="switchTab('notebook')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 transition text-left" id="btn-notebook">
-                        <i data-lucide="notebook-pen"></i> Catatan (Notebook)
+                        <i data-lucide="notebook-pen"></i> Catatan (Beta)
                     </button>
                 </nav>
             </div>
@@ -319,9 +319,22 @@
                         </h2>
                         <p class="text-xs text-gray-500 mt-1">Menampilkan rekapitulasi lengkap seluruh transaksi masuk, keluar, biaya operasional, netto, dan piutang.</p>
                     </div>
-                    <div class="relative w-full md:w-72">
-                        <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
-                        <input type="text" id="search-db" onkeyup="filterTables()" placeholder="Cari No Pesanan, Produk, Varian..." class="w-full pl-9 pr-4 py-2 border rounded-xl text-xs outline-none focus:ring-2 focus:ring-indigo-500 bg-white shadow-sm">
+                    
+                    <div class="flex flex-wrap items-center gap-3">
+                        <!-- Indikator Transaksi Belum Terisi -->
+                        <div class="flex items-center gap-2 bg-orange-50 border border-orange-200 px-3 py-1.5 rounded-xl text-xs font-semibold text-orange-700">
+                            <span>Shopee :</span>
+                            <span id="badge-shopee-unfilled" class="bg-orange-500 text-white px-2 py-0.5 rounded-full text-[11px] font-bold">0</span>
+                        </div>
+                        <div class="flex items-center gap-2 bg-sky-50 border border-sky-200 px-3 py-1.5 rounded-xl text-xs font-semibold text-sky-700">
+                            <span>TikTok Shop :</span>
+                            <span id="badge-tiktok-unfilled" class="bg-sky-600 text-white px-2 py-0.5 rounded-full text-[11px] font-bold">0</span>
+                        </div>
+
+                        <div class="relative w-full md:w-64">
+                            <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
+                            <input type="text" id="search-db" onkeyup="filterTables()" placeholder="Cari No Pesanan, Produk, Varian..." class="w-full pl-9 pr-4 py-2 border rounded-xl text-xs outline-none focus:ring-2 focus:ring-indigo-500 bg-white shadow-sm">
+                        </div>
                     </div>
                 </div>
 
@@ -479,7 +492,7 @@
                         <i data-lucide="notebook-pen" class="text-indigo-600"></i> Catatan Operasional (Synced Across Devices)
                     </h2>
                     <button onclick="saveNote()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 shadow transition">
-                        <i data-lucide="save" class="w-4 h-4"></i> Simpan Ke Spreadsheet
+                        <i data-lucide="save" class="w-4 h-4"></i> Simpan Catatan
                     </button>
                 </div>
 
@@ -607,7 +620,7 @@
         }
 
         function formatRupiah(number) {
-            if (number === 0 || number === "0" || !number) return "Rp -";
+            if (number === 0 || number === "0" || number === undefined || number === null || isNaN(number)) return "Rp -";
             return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(number);
         }
 
@@ -712,7 +725,11 @@
                 </tr>
             `).join('');
 
-            // Render Database Transaksi (DIPERBARUI SESUAI INSTRUKSI)
+            // Variable penampung jumlah transaksi yang belum terisi per marketplace
+            let shopeeUnfilled = 0;
+            let tiktokUnfilled = 0;
+
+            // Render Database Transaksi
             const dbBody = document.getElementById('table-db-body');
             dbBody.innerHTML = transaksiList.map(t => {
                 let noPesanan = t.detail || '-';
@@ -727,23 +744,43 @@
                 
                 let masukTampil = "";
                 let nominalTampil = "";
+                let bJasaTampil = "";
+                let bPackingTampil = "";
+                let bPromosiTampil = "";
+                let nettoTampil = "";
+                let piutangTampil = "";
 
-                if (matchingMasuk && matchingMasuk.nominal !== undefined && matchingMasuk.nominal !== null) {
+                if (matchingMasuk && matchingMasuk.nominal !== undefined && matchingMasuk.nominal !== null && matchingMasuk.nominal !== "") {
                     let nominalMasukVal = Number(matchingMasuk.nominal);
                     masukTampil = formatRupiah(nominalMasukVal);
                     
                     // Rumus: Nominal = Transaksi Masuk - Transaksi Keluar
                     let nominalSelisihVal = nominalMasukVal - keluar;
                     nominalTampil = formatRupiah(nominalSelisihVal);
+
+                    // Biaya Operasional dari Varian / Data Transaksi
+                    let bJasa = Number(t.biayaJasa || 0);
+                    let bPacking = Number(t.biayaPacking || 0);
+                    let bPromosi = Number(t.biayaPromosi || 0);
+
+                    bJasaTampil = formatRupiah(bJasa);
+                    bPackingTampil = formatRupiah(bPacking);
+                    bPromosiTampil = formatRupiah(bPromosi);
+
+                    let netto = nominalMasukVal - (keluar + bJasa + bPacking + bPromosi);
+                    let piutang = netto * 0.3; // Perhitungan estimasi piutang/margin potongan
+
+                    nettoTampil = formatRupiah(netto);
+                    piutangTampil = formatRupiah(piutang);
+                } else {
+                    // Jika transaksi masuk belum terisi, hitung indikator per marketplace
+                    const mpLower = String(mp).toLowerCase();
+                    if (mpLower.includes('shopee')) {
+                        shopeeUnfilled++;
+                    } else if (mpLower.includes('tiktok')) {
+                        tiktokUnfilled++;
+                    }
                 }
-
-                let bJasa = Number(t.biayaJasa || 0);
-                let bPacking = Number(t.biayaPacking || 0);
-                let bPromosi = Number(t.biayaPromosi || 0);
-
-                let nominalMasukVal = matchingMasuk ? Number(matchingMasuk.nominal) : 0;
-                let netto = nominalMasukVal - (keluar + bJasa + bPacking + bPromosi);
-                let piutang = netto * 0.3; // Perhitungan estimasi piutang/margin potongan
 
                 return `
                     <tr class="hover:bg-slate-50 transition">
@@ -759,14 +796,18 @@
                         <td class="p-3 text-right text-rose-600 border-r border-gray-100">${formatRupiah(keluar)}</td>
                         <td class="p-3 text-right text-emerald-600 border-r border-gray-100">${masukTampil}</td>
                         <td class="p-3 text-right text-emerald-700 font-bold border-r border-gray-100">${nominalTampil}</td>
-                        <td class="p-3 text-right text-gray-600 border-r border-gray-100">${formatRupiah(bJasa)}</td>
-                        <td class="p-3 text-right text-gray-600 border-r border-gray-100">${formatRupiah(bPacking)}</td>
-                        <td class="p-3 text-right text-gray-600 border-r border-gray-100">${formatRupiah(bPromosi)}</td>
-                        <td class="p-3 text-right text-emerald-700 font-extrabold bg-emerald-50/50 border-r border-gray-100">${formatRupiah(netto)}</td>
-                        <td class="p-3 text-right text-rose-600 font-bold bg-rose-50/30">${formatRupiah(piutang)}</td>
+                        <td class="p-3 text-right text-gray-600 border-r border-gray-100">${bJasaTampil}</td>
+                        <td class="p-3 text-right text-gray-600 border-r border-gray-100">${bPackingTampil}</td>
+                        <td class="p-3 text-right text-gray-600 border-r border-gray-100">${bPromosiTampil}</td>
+                        <td class="p-3 text-right text-emerald-700 font-extrabold bg-emerald-50/50 border-r border-gray-100">${nettoTampil}</td>
+                        <td class="p-3 text-right text-rose-600 font-bold bg-rose-50/30">${piutangTampil}</td>
                     </tr>
                 `;
             }).join('');
+
+            // Update nilai badge di UI
+            document.getElementById('badge-shopee-unfilled').innerText = shopeeUnfilled;
+            document.getElementById('badge-tiktok-unfilled').innerText = tiktokUnfilled;
 
             // Render Produk
             const prodBody = document.getElementById('table-produk-body');
