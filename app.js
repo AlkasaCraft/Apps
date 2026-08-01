@@ -2,23 +2,26 @@
 // JAVASCRIPT FRONTEND WEB (Koneksi ke Web App Google)
 // ================================================================
 
-// Ganti URL ini dengan URL Deployment "Web App" dari Apps Script kamu
-const SCRIPT_URL = "https://script.google.com/macros/s/KODE_DEPLOYMENT_AKFYCB_KAMU/exec";
+// ⚠️ PENTING: Ganti URL ini dengan URL Web App Apps Script kamu (berakhiran /exec)
+// JANGANKAN gunakan URL GitHub Pages di sini!
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzR6XSp6RSuv0zImXJed0Sa447IUlb0Gleu42S4hkMN7_uc7PupY7iqg2caDklTwPBu/exec"; 
 
-// Variable global untuk menyimpan data sementara jika dibutuhkan
+// Variable global untuk menyimpan data sementara dari server
 let appData = {
   transaksiKeluar: [],
   transaksiMasuk: [],
   produk: [],
-  bahan: []
+  bahan: [],
+  catatan: ""
 };
 
 /**
- * 1. MENGAMBIL DATA DARI SPREADSHEET (Otomatis dipanggil saat web di-refresh)
+ * 1. MENGAMBIL DATA DARI SPREADSHEET & DOCS
+ * (Otomatis dipanggil saat web dibuka/di-refresh)
  */
 async function loadDataFromSpreadsheet() {
   try {
-    console.log("Memuat data dari Google Spreadsheet...");
+    console.log("Memuat data dari server Google...");
 
     const response = await fetch(SCRIPT_URL);
     if (!response.ok) throw new Error("Gagal mengambil data dari server");
@@ -30,6 +33,7 @@ async function loadDataFromSpreadsheet() {
     appData.transaksiMasuk = data.transaksiMasuk || [];
     appData.produk = data.produk || [];
     appData.bahan = data.bahan || [];
+    appData.catatan = data.catatan || "";
 
     console.log("Data berhasil diambil:", appData);
 
@@ -43,10 +47,18 @@ async function loadDataFromSpreadsheet() {
 
 /**
  * 2. MENAMPILKAN DATA KE TAMPILAN WEB (RENDER UI)
- * Silakan sesuaikan ID elemen HTML (seperti "tabel-produk-body") dengan ID di HTML kamu.
  */
 function renderAllDataUI() {
-  // Contoh Render Tabel Produk Jadi
+  // A. Render Catatan Operasional (Notebook)
+  const notebookArea = document.getElementById("notebook-area");
+  if (notebookArea) {
+    // Hanya perbarui isi textarea jika pengguna sedang TIDAK mengetik di dalamnya
+    if (document.activeElement !== notebookArea) {
+      notebookArea.value = appData.catatan;
+    }
+  }
+
+  // B. Render Tabel Produk Jadi
   const tabelProduk = document.getElementById("tabel-produk-body");
   if (tabelProduk) {
     tabelProduk.innerHTML = "";
@@ -61,7 +73,7 @@ function renderAllDataUI() {
     });
   }
 
-  // Contoh Render Tabel Bahan Mentah
+  // C. Render Tabel Bahan Mentah
   const tabelBahan = document.getElementById("tabel-bahan-body");
   if (tabelBahan) {
     tabelBahan.innerHTML = "";
@@ -75,25 +87,23 @@ function renderAllDataUI() {
       `;
     });
   }
-
-  // Tambahkan fungsi render tabel Transaksi Keluar/Masuk di sini jika ada...
 }
 
 /**
- * 3. MENIRIM DATA BARU KE SPREADSHEET (POST)
+ * 3. MENGIRIM DATA BARU KE SERVER GOOGLE (POST)
  */
 async function sendToSpreadsheet(payload) {
   try {
     await fetch(SCRIPT_URL, {
       method: "POST",
-      mode: "no-cors",
+      mode: "no-cors", // Wajib untuk Google Apps Script
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
 
-    console.log("Data berhasil dikirim ke Spreadsheet!");
+    console.log("Data berhasil dikirim!");
 
-    // Setelah simpan data, ambil ulang data dari Spreadsheet agar tampilan web langsung ter-update
+    // Setelah simpan data, ambil ulang data terbaru dari server
     await loadDataFromSpreadsheet();
     return true;
 
@@ -104,7 +114,49 @@ async function sendToSpreadsheet(payload) {
 }
 
 // ----------------------------------------------------------------
-// FUNGSI KHUSUS FORM INPUT (Gunakan ini saat Form di-submit)
+// FUNGSI OPERASIONAL CATATAN (NOTEBOOK)
+// ----------------------------------------------------------------
+
+/**
+ * Fungsi untuk menyimpan Catatan ke Google Docs/Properties
+ */
+async function saveCatatan() {
+  const notebookArea = document.getElementById("notebook-area");
+  const btnSimpan = document.getElementById("btn-simpan-catatan");
+
+  if (!notebookArea) {
+    console.error("Elemen textarea catatan (id: notebook-area) tidak ditemukan!");
+    return;
+  }
+
+  const isiCatatan = notebookArea.value;
+
+  // Ubah status tombol jadi loading
+  if (btnSimpan) {
+    btnSimpan.disabled = true;
+    btnSimpan.innerText = "Menyimpan...";
+  }
+
+  const success = await sendToSpreadsheet({
+    action: "saveCatatan",
+    catatan: isiCatatan
+  });
+
+  // Kembalikan status tombol
+  if (btnSimpan) {
+    btnSimpan.disabled = false;
+    btnSimpan.innerText = "Simpan Ke Spreadsheet";
+  }
+
+  if (success) {
+    alert("Catatan berhasil tersimpan dan tersinkronisasi!");
+  } else {
+    alert("Gagal menyimpan catatan. Periksa koneksi internet.");
+  }
+}
+
+// ----------------------------------------------------------------
+// FUNGSI KHUSUS FORM INPUT (TRANSAKSI & STOK)
 // ----------------------------------------------------------------
 
 // A. Tambah Transaksi Keluar
@@ -144,7 +196,7 @@ async function updateStokBahan(nama, stok, satuan) {
 }
 
 /**
- * 4. OTOMATIS JALANKAN SAAT WEB DIMUAT / DI-REFRESH
+ * 4. OTOMATIS JALANKAN SAAT WEB DIMUAT
  */
 document.addEventListener("DOMContentLoaded", () => {
   loadDataFromSpreadsheet();
