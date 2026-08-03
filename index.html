@@ -14,45 +14,63 @@
 <body class="bg-gray-50 font-sans text-gray-800">
 
     <div class="flex h-screen overflow-hidden">
-        <!-- Sidebar Navigation -->
-        <aside class="w-64 bg-slate-900 text-white flex flex-col justify-between p-4 shrink-0">
+        <!-- Sidebar Navigation (Collapse to Icon Only) -->
+        <aside id="sidebar" class="w-64 bg-slate-900 text-white flex flex-col justify-between p-4 shrink-0 transition-all duration-300 ease-in-out z-20">
             <div>
-                <div class="flex items-center gap-3 px-2 py-4 border-b border-slate-700">
-                    <i data-lucide="home" class="text-indigo-400"></i>
-                    <h1 class="font-bold text-lg">ALKASA CRAFT</h1>
+                <!-- Toggle Menu Button (Icon Only di Atas Icon Home) -->
+                <div class="mb-2 flex items-center px-1">
+                    <button onclick="toggleSidebar()" title="Toggle Menu" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-400 transition flex items-center justify-center">
+                        <i data-lucide="menu" class="w-5 h-5"></i>
+                    </button>
                 </div>
+
+                <!-- Brand / Logo Area -->
+                <div class="flex items-center gap-3 px-2 py-3 border-b border-slate-700 overflow-hidden">
+                    <i data-lucide="home" class="text-indigo-400 shrink-0"></i>
+                    <h1 class="sidebar-text font-bold text-lg whitespace-nowrap transition-all duration-300">ALKASA CRAFT</h1>
+                </div>
+
+                <!-- Navigation Links -->
                 <nav class="mt-6 space-y-2">
-                    <button onclick="switchTab('dashboard')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 transition text-left font-bold bg-slate-800" id="btn-dashboard">
-                        <i data-lucide="bar-chart-3"></i> Ringkasan & Profit
+                    <button onclick="switchTab('dashboard')" class="nav-btn w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800 transition text-left font-bold bg-slate-800" id="btn-dashboard" title="Ringkasan & Profit">
+                        <i data-lucide="bar-chart-3" class="shrink-0"></i>
+                        <span class="sidebar-text text-sm whitespace-nowrap transition-all duration-300">Ringkasan & Profit</span>
                     </button>
-                    <button onclick="switchTab('cashflow')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 transition text-left" id="btn-cashflow">
-                        <i data-lucide="receipt"></i> Transaksi Keluar
+                    <button onclick="switchTab('cashflow')" class="nav-btn w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800 transition text-left" id="btn-cashflow" title="Transaksi Keluar">
+                        <i data-lucide="receipt" class="shrink-0"></i>
+                        <span class="sidebar-text text-sm whitespace-nowrap transition-all duration-300">Transaksi Keluar</span>
                     </button>
-                    <button onclick="switchTab('masuk')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 transition text-left" id="btn-masuk">
-                        <i data-lucide="arrow-down-left"></i> Transaksi Masuk
+                    <button onclick="switchTab('masuk')" class="nav-btn w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800 transition text-left" id="btn-masuk" title="Transaksi Masuk">
+                        <i data-lucide="arrow-down-left" class="shrink-0"></i>
+                        <span class="sidebar-text text-sm whitespace-nowrap transition-all duration-300">Transaksi Masuk</span>
                     </button>
-                    <!-- Menu Baru: Database Transaksi -->
-                    <button onclick="switchTab('db-transaksi')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 transition text-left" id="btn-db-transaksi">
-                        <i data-lucide="database"></i> Database Transaksi
+                    <button onclick="switchTab('db-transaksi')" class="nav-btn w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800 transition text-left" id="btn-db-transaksi" title="Database Transaksi">
+                        <i data-lucide="database" class="shrink-0"></i>
+                        <span class="sidebar-text text-sm whitespace-nowrap transition-all duration-300">Database Transaksi</span>
                     </button>
-                    <button onclick="switchTab('produk')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 transition text-left" id="btn-produk">
-                        <i data-lucide="package"></i> Stok Produk Jadi
+                    <button onclick="switchTab('produk')" class="nav-btn w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800 transition text-left" id="btn-produk" title="Stok Produk Jadi">
+                        <i data-lucide="package" class="shrink-0"></i>
+                        <span class="sidebar-text text-sm whitespace-nowrap transition-all duration-300">Stok Produk Jadi</span>
                     </button>
-                    <button onclick="switchTab('bahan')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 transition text-left" id="btn-bahan">
-                        <i data-lucide="boxes"></i> Stok Bahan Mentah
+                    <button onclick="switchTab('bahan')" class="nav-btn w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800 transition text-left" id="btn-bahan" title="Stok Bahan Mentah">
+                        <i data-lucide="boxes" class="shrink-0"></i>
+                        <span class="sidebar-text text-sm whitespace-nowrap transition-all duration-300">Stok Bahan Mentah</span>
                     </button>
-                    <button onclick="switchTab('notebook')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 transition text-left" id="btn-notebook">
-                        <i data-lucide="notebook-pen"></i> Catatan (Beta)
+                    <button onclick="switchTab('notebook')" class="nav-btn w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800 transition text-left" id="btn-notebook" title="Catatan (Beta)">
+                        <i data-lucide="notebook-pen" class="shrink-0"></i>
+                        <span class="sidebar-text text-sm whitespace-nowrap transition-all duration-300">Catatan (Beta)</span>
                     </button>
                 </nav>
             </div>
-            <div class="text-xs text-slate-500 text-center py-2 border-t border-slate-800 flex items-center justify-center gap-2">
-                <span id="sync-status">Connected to Google Sheets 🟢</span>
+
+            <!-- Sync Status Footer -->
+            <div class="text-xs text-slate-500 text-center py-2 border-t border-slate-800 flex items-center justify-center gap-2 overflow-hidden">
+                <span id="sync-status" class="whitespace-nowrap">Connected to Google Sheets 🟢</span>
             </div>
         </aside>
 
         <!-- Main Content Area -->
-        <main class="flex-1 overflow-y-auto p-8">
+        <main class="flex-1 overflow-y-auto p-8 relative">
 
             <!-- TAB 1: DASHBOARD & RINGKASAN PRODUKSI -->
             <section id="tab-dashboard" class="tab-content space-y-6">
@@ -310,7 +328,7 @@
                 </div>
             </section>
 
-            <!-- TAB 4: DATABASE TRANSAKSI (GABUNGAN MASUK & KELUAR) -->
+            <!-- TAB 4: DATABASE TRANSAKSI -->
             <section id="tab-db-transaksi" class="tab-content hidden space-y-6">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
@@ -321,7 +339,6 @@
                     </div>
                     
                     <div class="flex flex-wrap items-center gap-3">
-                        <!-- Indikator Transaksi Belum Terisi -->
                         <div class="flex items-center gap-2 bg-orange-50 border border-orange-200 px-3 py-1.5 rounded-xl text-xs font-semibold text-orange-700">
                             <span>Shopee :</span>
                             <span id="badge-shopee-unfilled" class="bg-orange-500 text-white px-2 py-0.5 rounded-full text-[11px] font-bold">0</span>
@@ -485,7 +502,7 @@
                 </div>
             </section>
 
-            <!-- TAB 7: CATATAN (NOTEBOOK / NOTEPAD) TERKONEKSI SPREADSHEET -->
+            <!-- TAB 7: CATATAN (NOTEBOOK / NOTEPAD) -->
             <section id="tab-notebook" class="tab-content hidden space-y-6">
                 <div class="flex justify-between items-center">
                     <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
@@ -540,6 +557,24 @@
 
         let profitChart;
         lucide.createIcons();
+
+        // Fungsi Toggle Sidebar (Full vs Mini Icon Only)
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const texts = document.querySelectorAll('.sidebar-text');
+
+            if (sidebar.classList.contains('w-64')) {
+                // Ubah ke mode Mini (Icon Only)
+                sidebar.classList.remove('w-64');
+                sidebar.classList.add('w-20');
+                texts.forEach(el => el.classList.add('hidden'));
+            } else {
+                // Kembali ke mode Full
+                sidebar.classList.remove('w-20');
+                sidebar.classList.add('w-64');
+                texts.forEach(el => el.classList.remove('hidden'));
+            }
+        }
 
         // Ambil Data dari Spreadsheet
         function fetchInitialData() {
@@ -725,7 +760,6 @@
                 </tr>
             `).join('');
 
-            // Variable penampung jumlah transaksi yang belum terisi per marketplace
             let shopeeUnfilled = 0;
             let tiktokUnfilled = 0;
 
@@ -739,7 +773,6 @@
                 let mp = t.marketplace || '-';
                 let keluar = Number(t.biayaCetak || 0);
                 
-                // Cari transaksi masuk berdasarkan No Pesanan / Detail
                 let matchingMasuk = transaksiMasukList.find(tm => tm.detail && String(tm.detail).trim().toLowerCase() === String(noPesanan).trim().toLowerCase());
                 
                 let masukTampil = "";
@@ -754,11 +787,9 @@
                     let nominalMasukVal = Number(matchingMasuk.nominal);
                     masukTampil = formatRupiah(nominalMasukVal);
                     
-                    // Rumus: Nominal = Transaksi Masuk - Transaksi Keluar
                     let nominalSelisihVal = nominalMasukVal - keluar;
                     nominalTampil = formatRupiah(nominalSelisihVal);
 
-                    // Biaya Operasional dari Varian / Data Transaksi
                     let bJasa = Number(t.biayaJasa || 0);
                     let bPacking = Number(t.biayaPacking || 0);
                     let bPromosi = Number(t.biayaPromosi || 0);
@@ -768,12 +799,11 @@
                     bPromosiTampil = formatRupiah(bPromosi);
 
                     let netto = nominalMasukVal - (keluar + bJasa + bPacking + bPromosi);
-                    let piutang = netto * 0.3; // Perhitungan estimasi piutang/margin potongan
+                    let piutang = netto * 0.3;
 
                     nettoTampil = formatRupiah(netto);
                     piutangTampil = formatRupiah(piutang);
                 } else {
-                    // Jika transaksi masuk belum terisi, hitung indikator per marketplace
                     const mpLower = String(mp).toLowerCase();
                     if (mpLower.includes('shopee')) {
                         shopeeUnfilled++;
@@ -805,7 +835,6 @@
                 `;
             }).join('');
 
-            // Update nilai badge di UI
             document.getElementById('badge-shopee-unfilled').innerText = shopeeUnfilled;
             document.getElementById('badge-tiktok-unfilled').innerText = tiktokUnfilled;
 
@@ -976,7 +1005,6 @@
             });
         }
 
-        // Jalankan sinkronisasi awal saat web dibuka
         fetchInitialData();
     </script>
 </body>
