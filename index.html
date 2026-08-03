@@ -399,7 +399,7 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Jumlah Stok (Pcs)</label>
+                                <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Tambah Stok (Pcs)</label>
                                 <input type="number" id="prod-stok" placeholder="0" required class="w-full border rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
                             </div>
                             <div>
@@ -407,7 +407,7 @@
                                 <input type="number" id="prod-harga" placeholder="0" required class="w-full border rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
                             </div>
                             <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition shadow-md">
-                                Update Produk
+                                Tambah Stok Produk
                             </button>
                         </form>
                     </div>
@@ -455,10 +455,12 @@
                                     <option value="Keychain">Keychain</option>
                                     <option value="Frame">Frame</option>
                                     <option value="Gelang">Gelang</option>
+                                    <option value="Art Paper 200">Art Paper 200</option>
+                                    <option value="Art Paper 150">Art Paper 150</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Jumlah</label>
+                                <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Tambah Jumlah</label>
                                 <input type="number" id="bahan-stok" placeholder="0" required class="w-full border rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
                             </div>
                             <div>
@@ -467,10 +469,12 @@
                                     <option value="Pcs">Pcs</option>
                                     <option value="Pack">Pack</option>
                                     <option value="Box">Box</option>
+                                    <option value="Lembar">Lembar</option>
+                                    <option value="Rim">Rim</option>
                                 </select>
                             </div>
                             <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition shadow-md">
-                                Update Bahan
+                                Tambah Stok Bahan
                             </button>
                         </form>
                     </div>
@@ -950,41 +954,53 @@
             e.target.reset();
         }
 
+        // FUNGSI UPDATE STOK PRODUK (AKUMULASI / PENAMBAHAN)
         function submitProduk(e) {
             e.preventDefault();
             const namaInput = document.getElementById('prod-nama').value.trim();
-            const stokInput = Number(document.getElementById('prod-stok').value);
-            const hargaInput = Number(document.getElementById('prod-harga').value);
+            const tambahStok = Number(document.getElementById('prod-stok').value) || 0;
+            const hargaInput = Number(document.getElementById('prod-harga').value) || 0;
+
+            let totalStokBaru = tambahStok;
 
             const existing = produkList.find(p => String(p.nama).toLowerCase() === namaInput.toLowerCase());
             if (existing) {
-                existing.stok = stokInput;
+                // Menambahkan input baru ke stok yang sudah ada
+                existing.stok = (Number(existing.stok) || 0) + tambahStok;
                 existing.harga = hargaInput;
+                totalStokBaru = existing.stok;
             } else {
-                produkList.unshift({ nama: namaInput, stok: stokInput, harga: hargaInput });
+                produkList.unshift({ nama: namaInput, stok: tambahStok, harga: hargaInput });
             }
 
-            const data = { action: 'addProduk', nama: namaInput, stok: stokInput, harga: hargaInput };
+            // Kirim total stok akumulasi terbaru ke Apps Script/Spreadsheet
+            const data = { action: 'addProduk', nama: namaInput, stok: totalStokBaru, harga: hargaInput };
             renderTables();
             sendToSpreadsheet(data);
             e.target.reset();
         }
 
+        // FUNGSI UPDATE STOK BAHAN (AKUMULASI / PENAMBAHAN)
         function submitBahan(e) {
             e.preventDefault();
             const namaInput = document.getElementById('bahan-nama').value.trim();
-            const stokInput = Number(document.getElementById('bahan-stok').value);
+            const tambahStok = Number(document.getElementById('bahan-stok').value) || 0;
             const satuanInput = document.getElementById('bahan-satuan').value;
+
+            let totalStokBaru = tambahStok;
 
             const existing = bahanList.find(b => String(b.nama).toLowerCase() === namaInput.toLowerCase());
             if (existing) {
-                existing.stok = stokInput;
+                // Menambahkan input baru ke stok bahan yang sudah ada
+                existing.stok = (Number(existing.stok) || 0) + tambahStok;
                 existing.satuan = satuanInput;
+                totalStokBaru = existing.stok;
             } else {
-                bahanList.unshift({ nama: namaInput, stok: stokInput, satuan: satuanInput });
+                bahanList.unshift({ nama: namaInput, stok: tambahStok, satuan: satuanInput });
             }
 
-            const data = { action: 'addBahan', nama: namaInput, stok: stokInput, satuan: satuanInput };
+            // Kirim total stok akumulasi terbaru ke Apps Script/Spreadsheet
+            const data = { action: 'addBahan', nama: namaInput, stok: totalStokBaru, satuan: satuanInput };
             renderTables();
             sendToSpreadsheet(data);
             e.target.reset();
