@@ -14,10 +14,10 @@
 <body class="bg-gray-50 font-sans text-gray-800">
 
     <div class="flex h-screen overflow-hidden">
-        <!-- Sidebar Navigation (Collapse to Icon Only) -->
+        <!-- Sidebar Navigation -->
         <aside id="sidebar" class="w-64 bg-slate-900 text-white flex flex-col justify-between p-4 shrink-0 transition-all duration-300 ease-in-out z-20">
             <div>
-                <!-- Toggle Menu Button (Icon Only di Atas Icon Home) -->
+                <!-- Toggle Menu Button -->
                 <div class="mb-2 flex items-center px-1">
                     <button onclick="toggleSidebar()" title="Toggle Menu" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-400 transition flex items-center justify-center">
                         <i data-lucide="menu" class="w-5 h-5"></i>
@@ -48,6 +48,13 @@
                         <i data-lucide="database" class="shrink-0"></i>
                         <span class="sidebar-text text-sm whitespace-nowrap transition-all duration-300">Database Transaksi</span>
                     </button>
+                    
+                    <!-- MENU BARU: CASH FLOW ALKASA CRAFT (Tepat di bawah Database Transaksi) -->
+                    <button onclick="switchTab('cash-flow-alkasa')" class="nav-btn w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800 transition text-left" id="btn-cash-flow-alkasa" title="Cash Flow">
+                        <i data-lucide="arrow-left-right" class="shrink-0"></i>
+                        <span class="sidebar-text text-sm whitespace-nowrap transition-all duration-300">Cash Flow</span>
+                    </button>
+
                     <button onclick="switchTab('produk')" class="nav-btn w-full flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-800 transition text-left" id="btn-produk" title="Stok Produk Jadi">
                         <i data-lucide="package" class="shrink-0"></i>
                         <span class="sidebar-text text-sm whitespace-nowrap transition-all duration-300">Stok Produk Jadi</span>
@@ -79,7 +86,6 @@
                     <span class="text-sm bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full font-medium">Auto-Sync Spreadsheet</span>
                 </header>
 
-                <!-- Status Summary Cards -->
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-100 shadow-sm">
                         <p class="text-xs font-bold text-emerald-600 uppercase">Profit (Netto)</p>
@@ -99,7 +105,6 @@
                     </div>
                 </div>
 
-                <!-- Detail Rincian Biaya Operasional -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="bg-amber-50 p-4 rounded-2xl border border-amber-100 shadow-sm">
                         <div class="flex items-center justify-between">
@@ -126,7 +131,6 @@
                     </div>
                 </div>
 
-                <!-- Grafik Keuntungan -->
                 <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
                     <h3 class="font-bold text-gray-700 mb-4">Grafik Analisis Omset vs Profit Netto</h3>
                     <div class="h-64">
@@ -383,6 +387,95 @@
                 </div>
             </section>
 
+            <!-- TAB BARU: CASH FLOW ALKASA CRAFT -->
+            <section id="tab-cash-flow-alkasa" class="tab-content hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                        <i data-lucide="arrow-left-right" class="text-amber-500"></i> Cash Flow Alkasa Craft
+                    </h2>
+                    <span class="text-xs bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1 rounded-full font-semibold">Sheet: Cash Flow Alkasa Craft</span>
+                </div>
+
+                <!-- Form Input Cash Flow -->
+                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+                    <h3 class="font-bold text-gray-700 mb-4 flex items-center gap-2">
+                        <i data-lucide="plus-circle" class="text-amber-600"></i> Input Keuangan Keluar & Masuk
+                    </h3>
+                    <form id="form-cash-flow-alkasa" onsubmit="submitCashFlowAlkasa(event)" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tanggal</label>
+                            <input type="date" id="cf-tgl" required class="w-full border rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-amber-500">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Cash Flow</label>
+                            <select id="cf-type" required class="w-full border rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-amber-500 font-semibold text-gray-700">
+                                <option value="Keluar">Keluar</option>
+                                <option value="Masuk">Masuk</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Kategori</label>
+                            <select id="cf-kategori" required class="w-full border rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-amber-500">
+                                <option value="Modal Awal">Modal Awal</option>
+                                <option value="Dana Produksi">Dana Produksi</option>
+                                <option value="Dana Akomodasi">Dana Akomodasi</option>
+                                <option value="Biaya Jasa">Biaya Jasa</option>
+                                <option value="Biaya Packing">Biaya Packing</option>
+                                <option value="Biaya Promosi">Biaya Promosi</option>
+                                <option value="Modal Pinjaman">Modal Pinjaman</option>
+                                <option value="Shopee Pay">Shopee Pay</option>
+                                <option value="Dana Lainnya">Dana Lainnya</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nominal (Rp)</label>
+                            <input type="number" id="cf-nominal" placeholder="0" required class="w-full border rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-amber-500">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Keterangan</label>
+                            <input type="text" id="cf-keterangan" placeholder="Catatan transaksi..." required class="w-full border rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-amber-500">
+                        </div>
+
+                        <div class="md:col-span-3 lg:col-span-5 flex items-end mt-2">
+                            <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 rounded-xl transition shadow-md flex items-center justify-center gap-2">
+                                <i data-lucide="send" class="w-4 h-4"></i> Simpan Cash Flow
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Tabel Riwayat Cash Flow -->
+                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+                        <h3 class="font-bold text-gray-700">Riwayat Cash Flow Alkasa Craft</h3>
+                        <div class="relative w-full md:w-64">
+                            <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
+                            <input type="text" id="search-cashflow-alkasa" onkeyup="filterTables()" placeholder="Cari keterangan, kategori..." class="w-full pl-9 pr-4 py-2 border rounded-xl text-xs outline-none focus:ring-2 focus:ring-amber-500 bg-gray-50">
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-600 uppercase border-b text-xs">
+                                    <th class="p-3">Tanggal</th>
+                                    <th class="p-3">Keterangan</th>
+                                    <th class="p-3">Cash Flow</th>
+                                    <th class="p-3">Kategori</th>
+                                    <th class="p-3 text-right">Nominal</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-cashflow-alkasa-body" class="divide-y divide-gray-100">
+                                <!-- Dynamic Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
             <!-- TAB 5: STOK PRODUK JADI -->
             <section id="tab-produk" class="tab-content hidden space-y-6">
                 <h2 class="text-2xl font-bold text-gray-800">Stok Produk Jadi</h2>
@@ -556,31 +649,28 @@
 
         let transaksiList = [];
         let transaksiMasukList = [];
+        let cashflowAlkasaList = [];
         let produkList = [];
         let bahanList = [];
 
         let profitChart;
         lucide.createIcons();
 
-        // Fungsi Toggle Sidebar (Full vs Mini Icon Only)
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const texts = document.querySelectorAll('.sidebar-text');
 
             if (sidebar.classList.contains('w-64')) {
-                // Ubah ke mode Mini (Icon Only)
                 sidebar.classList.remove('w-64');
                 sidebar.classList.add('w-20');
                 texts.forEach(el => el.classList.add('hidden'));
             } else {
-                // Kembali ke mode Full
                 sidebar.classList.remove('w-20');
                 sidebar.classList.add('w-64');
                 texts.forEach(el => el.classList.remove('hidden'));
             }
         }
 
-        // Ambil Data dari Spreadsheet
         function fetchInitialData() {
             document.getElementById('sync-status').innerText = 'Syncing... 🟡';
 
@@ -589,6 +679,7 @@
                 .then(data => {
                     transaksiList = data.transaksiKeluar || [];
                     transaksiMasukList = data.transaksiMasuk || [];
+                    cashflowAlkasaList = data.cashflowAlkasa || [];
                     produkList = data.produk || [];
                     bahanList = data.bahan || [];
                     
@@ -764,6 +855,24 @@
                 </tr>
             `).join('');
 
+            // Render Cash Flow Alkasa Craft
+            const cfAlkasaBody = document.getElementById('table-cashflow-alkasa-body');
+            cfAlkasaBody.innerHTML = cashflowAlkasaList.map(cf => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="p-3 text-gray-500 font-medium">${cf.tanggal || ''}</td>
+                    <td class="p-3 font-semibold text-gray-700">${cf.keterangan || ''}</td>
+                    <td class="p-3">
+                        <span class="px-2 py-1 rounded-md text-xs font-bold ${cf.type === 'Masuk' ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">
+                            ${cf.type || 'Keluar'}
+                        </span>
+                    </td>
+                    <td class="p-3 text-gray-600 font-medium">${cf.kategori || ''}</td>
+                    <td class="p-3 text-right font-bold ${cf.type === 'Masuk' ? 'text-emerald-600' : 'text-rose-600'}">
+                        ${formatRupiah(cf.nominal)}
+                    </td>
+                </tr>
+            `).join('');
+
             let shopeeUnfilled = 0;
             let tiktokUnfilled = 0;
 
@@ -879,6 +988,7 @@
             const configs = [
                 { inputId: 'search-keluar', tbodyId: 'table-transaksi-body' },
                 { inputId: 'search-masuk', tbodyId: 'table-masuk-body' },
+                { inputId: 'search-cashflow-alkasa', tbodyId: 'table-cashflow-alkasa-body' },
                 { inputId: 'search-db', tbodyId: 'table-db-body' },
                 { inputId: 'search-produk', tbodyId: 'table-produk-body' },
                 { inputId: 'search-bahan', tbodyId: 'table-bahan-body' }
@@ -954,7 +1064,25 @@
             e.target.reset();
         }
 
-        // FUNGSI UPDATE STOK PRODUK (AKUMULASI / PENAMBAHAN)
+        // FUNGSI SUBMIT CASH FLOW ALKASA CRAFT
+        function submitCashFlowAlkasa(e) {
+            e.preventDefault();
+            const data = {
+                action: 'addCashFlowAlkasa',
+                sheetTarget: 'Cash Flow Alkasa Craft',
+                tanggal: document.getElementById('cf-tgl').value,
+                keterangan: document.getElementById('cf-keterangan').value,
+                type: document.getElementById('cf-type').value,
+                kategori: document.getElementById('cf-kategori').value,
+                nominal: Number(document.getElementById('cf-nominal').value || 0)
+            };
+
+            cashflowAlkasaList.unshift(data);
+            renderTables();
+            sendToSpreadsheet(data);
+            e.target.reset();
+        }
+
         function submitProduk(e) {
             e.preventDefault();
             const namaInput = document.getElementById('prod-nama').value.trim();
@@ -965,7 +1093,6 @@
 
             const existing = produkList.find(p => String(p.nama).toLowerCase() === namaInput.toLowerCase());
             if (existing) {
-                // Menambahkan input baru ke stok yang sudah ada
                 existing.stok = (Number(existing.stok) || 0) + tambahStok;
                 existing.harga = hargaInput;
                 totalStokBaru = existing.stok;
@@ -973,14 +1100,12 @@
                 produkList.unshift({ nama: namaInput, stok: tambahStok, harga: hargaInput });
             }
 
-            // Kirim total stok akumulasi terbaru ke Apps Script/Spreadsheet
             const data = { action: 'addProduk', nama: namaInput, stok: totalStokBaru, harga: hargaInput };
             renderTables();
             sendToSpreadsheet(data);
             e.target.reset();
         }
 
-        // FUNGSI UPDATE STOK BAHAN (AKUMULASI / PENAMBAHAN)
         function submitBahan(e) {
             e.preventDefault();
             const namaInput = document.getElementById('bahan-nama').value.trim();
@@ -991,7 +1116,6 @@
 
             const existing = bahanList.find(b => String(b.nama).toLowerCase() === namaInput.toLowerCase());
             if (existing) {
-                // Menambahkan input baru ke stok bahan yang sudah ada
                 existing.stok = (Number(existing.stok) || 0) + tambahStok;
                 existing.satuan = satuanInput;
                 totalStokBaru = existing.stok;
@@ -999,7 +1123,6 @@
                 bahanList.unshift({ nama: namaInput, stok: tambahStok, satuan: satuanInput });
             }
 
-            // Kirim total stok akumulasi terbaru ke Apps Script/Spreadsheet
             const data = { action: 'addBahan', nama: namaInput, stok: totalStokBaru, satuan: satuanInput };
             renderTables();
             sendToSpreadsheet(data);
