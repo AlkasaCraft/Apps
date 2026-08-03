@@ -1,15 +1,15 @@
 // ================================================================
-// JAVASCRIPT FRONTEND WEB (Koneksi ke Web App Google)
+// JAVASCRIPT FRONTEND WEB (Koneksi ke Web App Google - FULL UPDATED)
 // ================================================================
 
 // ⚠️ PENTING: Ganti URL ini dengan URL Web App Apps Script kamu (berakhiran /exec)
-// JANGAN gunakan URL GitHub Pages di sini!
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzR6XSp6RSuv0zImXJed0Sa447IUlb0Gleu42S4hkMN7_uc7PupY7iqg2caDklTwPBu/exec"; 
 
 // Variable global untuk menyimpan data sementara dari server
 let appData = {
   transaksiKeluar: [],
   transaksiMasuk: [],
+  cashFlow: [],
   produk: [],
   bahan: []
 };
@@ -30,6 +30,7 @@ async function loadDataFromSpreadsheet() {
     // Simpan data ke variable global
     appData.transaksiKeluar = data.transaksiKeluar || [];
     appData.transaksiMasuk = data.transaksiMasuk || [];
+    appData.cashFlow = data.cashFlow || [];
     appData.produk = data.produk || [];
     appData.bahan = data.bahan || [];
 
@@ -76,6 +77,40 @@ function renderAllDataUI() {
       `;
     });
   }
+
+  // C. Render Tabel Cash Flow
+  renderCashFlowUI();
+}
+
+/**
+ * Render khusus untuk Tabel Riwayat Cash Flow
+ */
+function renderCashFlowUI() {
+  const tabelCashFlow = document.getElementById("tabel-cashflow-body");
+  if (!tabelCashFlow) return;
+
+  tabelCashFlow.innerHTML = "";
+
+  if (appData.cashFlow.length === 0) {
+    tabelCashFlow.innerHTML = `<tr><td colspan="5" class="text-center">Belum ada data cash flow.</td></tr>`;
+    return;
+  }
+
+  appData.cashFlow.forEach(item => {
+    const isMasuk = item.cashFlow && item.cashFlow.toLowerCase() === "masuk";
+    const badgeClass = isMasuk ? "badge-masuk" : "badge-keluar";
+    const textNominalColor = isMasuk ? "text-success" : "text-danger";
+
+    tabelCashFlow.innerHTML += `
+      <tr>
+        <td>${item.tanggal || "-"}</td>
+        <td>${item.keterangan || "-"}</td>
+        <td><span class="badge ${badgeClass}">${item.cashFlow || "-"}</span></td>
+        <td>${item.kategori || "-"}</td>
+        <td class="${textNominalColor} fw-bold">Rp ${Number(item.nominal || 0).toLocaleString("id-ID")}</td>
+      </tr>
+    `;
+  });
 }
 
 /**
@@ -92,7 +127,7 @@ async function sendToSpreadsheet(payload) {
 
     console.log("Data berhasil dikirim!");
 
-    // Setelah simpan data, ambil ulang data terbaru dari server
+    // Ambil ulang data terbaru dari server
     await loadDataFromSpreadsheet();
     return true;
 
@@ -103,10 +138,22 @@ async function sendToSpreadsheet(payload) {
 }
 
 // ----------------------------------------------------------------
-// FUNGSI KHUSUS FORM INPUT (TRANSAKSI & STOK)
+// FUNGSI KHUSUS FORM INPUT (TRANSAKSI, CASH FLOW & STOK)
 // ----------------------------------------------------------------
 
-// A. Tambah Transaksi Keluar
+// A. Tambah Cash Flow Baru
+async function addCashFlow(tanggal, keterangan, cashFlow, kategori, nominal) {
+  await sendToSpreadsheet({
+    action: "addCashFlow",
+    tanggal: tanggal,
+    keterangan: keterangan,
+    cashFlow: cashFlow,
+    kategori: kategori,
+    nominal: Number(nominal)
+  });
+}
+
+// B. Tambah Transaksi Keluar
 async function addTransaksiKeluar(formData) {
   await sendToSpreadsheet({
     action: "addTransaksi",
@@ -114,7 +161,7 @@ async function addTransaksiKeluar(formData) {
   });
 }
 
-// B. Tambah Transaksi Masuk
+// C. Tambah Transaksi Masuk
 async function addTransaksiMasuk(formData) {
   await sendToSpreadsheet({
     action: "addTransaksiMasuk",
@@ -122,7 +169,7 @@ async function addTransaksiMasuk(formData) {
   });
 }
 
-// C. Update / Tambah Stok Produk
+// D. Update / Tambah Stok Produk
 async function updateStokProduk(nama, stok, harga) {
   await sendToSpreadsheet({
     action: "addProduk",
@@ -132,7 +179,7 @@ async function updateStokProduk(nama, stok, harga) {
   });
 }
 
-// D. Update / Tambah Stok Bahan
+// E. Update / Tambah Stok Bahan
 async function updateStokBahan(nama, stok, satuan) {
   await sendToSpreadsheet({
     action: "addBahan",
@@ -143,8 +190,34 @@ async function updateStokBahan(nama, stok, satuan) {
 }
 
 /**
- * 4. OTOMATIS JALANKAN SAAT WEB DIMUAT
+ * 4. EVENT LISTENER FORM CASH FLOW & OTOMATIS RUN SAAT WEB DIMUAT
  */
 document.addEventListener("DOMContentLoaded", () => {
+  // Load data awal dari spreadsheet
   loadDataFromSpreadsheet();
+
+  // Event Listener Form Cash Flow (Jika form ada di HTML)
+  const formCashFlow = document.getElementById("form-cashflow");
+  if (formCashFlow) {
+    formCashFlow.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const tanggal = document.getElementById("cf-tanggal")?.value;
+      const cashFlow = document.getElementById("cf-type")?.value; // "Masuk" atau "Keluar"
+      const kategori = document.getElementById("cf-kategori")?.value;
+      const nominal = document.getElementById("cf-nominal")?.value;
+      const keterangan = document.getElementById("cf-keterangan")?.value;
+
+      if (!tanggal || !nominal) {
+        alert("Harap isi Tanggal dan Nominal!");
+        return;
+      }
+
+      // Kirim data ke Google Sheets
+      await addCashFlow(tanggal, keterangan, cashFlow, kategori, nominal);
+
+      // Reset Form setelah disimpan
+      formCashFlow.reset();
+    });
+  }
 });
